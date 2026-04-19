@@ -5,7 +5,6 @@ import requests
 from xml.etree import ElementTree as ET
 import numpy as np
 
-# --- PubMed-funktioner ---
 BASE_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
 SEARCH_URL = BASE_URL + "esearch.fcgi"
 FETCH_URL = BASE_URL + "efetch.fcgi"
@@ -58,19 +57,21 @@ def generate_regex_patterns(text: str) -> list[str]:
 
     return patterns
 
-# --- Textmining ---
 def find_disease(abstracts: list[str], microbe_patterns: list[str], fishs: list[str], microbe_name: str) -> dict[str, dict[str, int]]:
-    """Analysera abstracts för att räkna antalet nämnder av mikroorganismen i samband med varje fisk, summerat över alla patternträffar.
+    “”"Analyze abstracts to count the number of mentions of the microorganism in connection with each fish, summed across all pattern matches.
     Args:
-        abstracts (list[str]): Lista över abstracts att analysera
-        microbe_patterns (list[str]): Lista över regex-mönster för mikroorganismer
-        fishs (list[str]): Lista över fiskarter
-        microbe_name (str): Namn på mikroorganismen/disease som används som nyckel i resultatdict
+        abstracts (list[str]): List of abstracts to analyze
+        microbe_patterns (list[str]): List of regex patterns for microorganisms
+        fishs (list[str]): List of fish species
+        microbe_name (str): Name of the microorganism/disease used as a key in the results dictionary
 
     Returns:
-        dict[str, dict[str, int]]: En dictionary med ett enda mikroorganismnamn och räkningar per fisk samt totalt
-    """
-    counts = {fish: 0 for fish in fishs}
+        dict[str, dict[str, int]]: A dictionary containing a single microorganism name and counts per fish, as well as the total
+    “”"
+    
+
+
+counts = {fish: 0 for fish in fishs}
     counts["total"] = 0
 
     if not abstracts:
@@ -113,11 +114,11 @@ def plot_microbe_mentions(data: dict[str, dict[str, int]], fishs: list[str]) -> 
 
     colors = plt.cm.tab10(np.linspace(0, 1, len(fishs) + 1))
 
-    # Sortera bakterier för bättre läsbarhet
+
     bacteria_order = sorted(df["bacteria"].unique())
     total_df = df[df["fish"] == fishs[0]].drop_duplicates(subset="bacteria").set_index("bacteria").reindex(bacteria_order).reset_index()
 
-    # Staplar för totala nämnder
+
     ax.bar(
         total_df["bacteria"],
         total_df["total"],
@@ -127,9 +128,9 @@ def plot_microbe_mentions(data: dict[str, dict[str, int]], fishs: list[str]) -> 
         width=0.6
     )
 
-    # Staplar för nämnder per fisk
+
     x = np.arange(len(bacteria_order))
-    width = 0.6 / (len(fishs) + 1)  # Anpassa bredden för att undvika överlappning
+    width = 0.6 / (len(fishs) + 1)  
 
     for i, fish in enumerate(fishs):
         fish_df = df[df["fish"] == fish].set_index("bacteria").reindex(bacteria_order).reset_index()
@@ -150,10 +151,8 @@ def plot_microbe_mentions(data: dict[str, dict[str, int]], fishs: list[str]) -> 
     fig.savefig("microbe_mentions.png", dpi=300, bbox_inches="tight")
     plt.show()
 
-# --- Huvudprogram ---
 def main():
-    #user_input = input("Please provide disease of interest: ").strip()
-    user_input = "Francisella noatunensis"
+    user_input = input("Please provide disease of interest: ").strip()
     if not user_input:
         raise ValueError("Disease input cannot be empty.")
 
